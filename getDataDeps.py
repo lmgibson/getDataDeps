@@ -15,7 +15,7 @@ def getListOfFiles(dirName):
         if os.path.isdir(fullPath):
             allRFiles = allRFiles + getListOfFiles(fullPath)
         else:
-            if ".R" in fullPath:
+            if entry.endswith(".R"):
                 allRFiles.append(fullPath)
 
     return allRFiles
@@ -27,9 +27,9 @@ data = {}
 for file in allRFiles:
     data[file] = {}
     save = os.popen(
-        'cat ' + file + ' | grep "save*" | grep -o \'".*"\' | sed \'s/"//g\'').read()
+        'cat ' + file + ' | grep -A 1 "saveRDS*" | grep -o \'".*"\' | sed \'s/"//g\'').read()
     read = os.popen(
-        'cat ' + file + ' | grep "read*" | grep -o \'".*"\' | sed \'s/"//g\'').read()
+        'cat ' + file + ' | grep -A 1 "readRDS*" | grep -o \'".*"\' | sed \'s/"//g\'').read()
 
     save = save.splitlines()
     read = read.splitlines()
