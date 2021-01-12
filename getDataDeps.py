@@ -21,49 +21,57 @@ def getListOfFiles(dirName):
     return allRFiles
 
 
+def extractDataDeps(allFiles):
+    data = {}
+    saveData = []
+    readData = []
+
+    for file in allFiles:
+        save = os.popen(
+            'cat ' + file + ' | grep -A 1 "saveRDS*" | grep -o \'".*"\' | sed \'s/"//g\'').read()
+        read = os.popen(
+            'cat ' + file + ' | grep -A 1 "readRDS*" | grep -o \'".*"\' | sed \'s/"//g\'').read()
+
+        save = save.splitlines()
+        read = read.splitlines()
+
+        for x in save:
+            if x not in data:
+                data[x] = {'save': [], 'read': []}
+                data[x]['save'].append(file)
+            else:
+                data[x]['save'].append(file)
+
+        for x in read:
+            if x not in data:
+                data[x] = {'save': [], 'read': []}
+                data[x]['read'].append(file)
+            else:
+                data[x]['read'].append(file)
+
+        if len(save) > 0:
+            saveData.extend(save)
+        if len(read) > 0:
+            readData.extend(read)
+
+    return data, saveData, readData
+
+
+def outputResults():
+    print("Saved datasets:")
+    [print("\t", x) for x in set(saveData)]
+
+    print("Read datasets:")
+    [print("\t", x) for x in set(readData)]
+
+    print("Datasets that are saved and not read:")
+    [print("\t", x) for x in (set(saveData) - set(readData))]
+
+    print("\nFor detailed information see the dataDeps.json file.")
+    with open('./dataDeps.json', 'w') as outfile:
+        json.dump(data, outfile)
+
+
 allRFiles = getListOfFiles(".")
-
-data = {}
-saveData = []
-readData = []
-
-for file in allRFiles:
-    save = os.popen(
-        'cat ' + file + ' | grep -A 1 "saveRDS*" | grep -o \'".*"\' | sed \'s/"//g\'').read()
-    read = os.popen(
-        'cat ' + file + ' | grep -A 1 "readRDS*" | grep -o \'".*"\' | sed \'s/"//g\'').read()
-
-    save = save.splitlines()
-    read = read.splitlines()
-
-    for x in save:
-        if x not in data:
-            data[x] = {'save': [], 'read': []}
-            data[x]['save'].append(file)
-        else:
-            data[x]['save'].append(file)
-
-    for x in read:
-        if x not in data:
-            data[x] = {'save': [], 'read': []}
-            data[x]['read'].append(file)
-        else:
-            data[x]['read'].append(file)
-
-    if len(save) > 0:
-        saveData.extend(save)
-    if len(read) > 0:
-        readData.extend(read)
-
-print("Saved datasets:")
-[print("\t", x) for x in set(saveData)]
-
-print("Read datasets:")
-[print("\t", x) for x in set(readData)]
-
-print("Datasets that are saved and not read:")
-[print("\t", x) for x in (set(saveData) - set(readData))]
-
-print("\nFor detailed information see the dataDeps.json file.")
-with open('./dataDeps.json', 'w') as outfile:
-    json.dump(data, outfile)
+data, saveData, readData = extractDataDeps(allRFiles)
+outputResults()
