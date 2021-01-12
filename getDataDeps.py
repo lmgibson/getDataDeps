@@ -24,8 +24,11 @@ def getListOfFiles(dirName):
 allRFiles = getListOfFiles(".")
 
 data = {}
+saveData = []
+readData = []
 for file in allRFiles:
     data[file] = {}
+
     save = os.popen(
         'cat ' + file + ' | grep -A 1 "saveRDS*" | grep -o \'".*"\' | sed \'s/"//g\'').read()
     read = os.popen(
@@ -34,7 +37,19 @@ for file in allRFiles:
     save = save.splitlines()
     read = read.splitlines()
 
+    if len(save) > 0:
+        saveData.extend(save)
+    if len(read) > 0:
+        readData.extend(read)
+
     data[file]['save'] = save
     data[file]['read'] = read
 
-print(json.dumps(data))
+print("Saved datasets:")
+[print("\t", x) for x in saveData]
+
+print("Read datasets:")
+[print("\t", x) for x in readData]
+
+print("Datasets that are saved and not read:")
+[print("\t", x) for x in (set(saveData) - set(readData))]

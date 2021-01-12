@@ -8,3 +8,4 @@ dt = tibble(
 saveRDS(dt,
     "./data/analytic.rds")
 saveRDS(dt, "./data/test.rds")
+saveRDS(dt, "./data/notUsedData.rds")
