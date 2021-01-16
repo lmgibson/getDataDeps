@@ -72,7 +72,7 @@ def outputResults():
     with open('./dataDeps.json', 'w') as outfile:
         json.dump(data, outfile)
 
-    print("\nA graph of your data dependencies is available as 'dataDepsGraph.svg'")
+    print("\nA graph of your data dependencies is available as 'dataDepsGraph.png'")
 
 
 def createDepGraph(data):
@@ -107,5 +107,5 @@ def createDepGraph(data):
 allRFiles = getListOfFiles(".")
 data, saveData, readData = extractDataDeps(allRFiles)
 graph = createDepGraph(data)
-graph.write_svg('./dataDepsGraph.svg')
+graph.write_png('./dataDepsGraph.png')
 outputResults()
