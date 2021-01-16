@@ -34,4 +34,4 @@ def createDepGraph(data):
 
 
 graph = createDepGraph(data)
-graph.write_svg('dataDepsGraph.svg')
+graph.write_svg('./dataDepsGraph.svg')
