@@ -8,15 +8,23 @@ def getListOfFiles(dirName):
     # names in the given directory
     listOfFile = os.listdir(dirName)
     allCodeFiles = list()
+
+    # blacklisted directory names
+    ignoreDirectoriesContaining = [
+        'conda-env', 'archive', 'old', 'getDataDeps']
+
     # Iterate over all the entries
     for entry in listOfFile:
         # Create full path
         fullPath = os.path.join(dirName, entry)
+
         # If entry is a directory then get the list of files in this directory
+        # if it isn't a directory, and ends with .R  or .py and the fullpath doesn't contain
+        # a blacklisted string, then append it to list of R files.
         if os.path.isdir(fullPath):
             allCodeFiles = allCodeFiles + getListOfFiles(fullPath)
         else:
-            if entry.endswith(".R"):
+            if (entry.endswith(".R") or entry.endswith(".py")) and (not any([x in fullPath for x in ignoreDirectoriesContaining])):
                 allCodeFiles.append(fullPath)
 
     return allCodeFiles
@@ -107,6 +115,7 @@ def createDepGraph(data):
 
 # Recursively obtain list of R files
 allCodeFiles = getListOfFiles(".")
+print(allCodeFiles)
 
 # Extract dependencies from R files
 data, saveData, readData = extractDataDeps(allCodeFiles)
