@@ -71,10 +71,10 @@ def outputResults():
     [print("\t", dataFile) for dataFile in (set(saveData) - set(readData))]
 
     print("\nFor detailed information see the dataDeps.json file.")
-    with open('./dataDeps.json', 'w') as outfile:
+    with open('./dataDepsOutput/dataDeps.json', 'w') as outfile:
         json.dump(data, outfile)
 
-    print("\nA graph of your data dependencies is available as 'dataDepsGraph.png'")
+    print("\nA graph of your data dependencies is available as './dataDepsOutput/dataDepsGraph.png'")
 
 
 def createDepGraph(data):
@@ -105,9 +105,19 @@ def createDepGraph(data):
     return dot_graph
 
 
-# Putting it together
-allRFiles = getListOfFiles(".")
-data, saveData, readData = extractDataDeps(allRFiles)
+# Recursively obtain list of R files
+allCodeFiles = getListOfFiles(".")
+
+# Extract dependencies from R files
+data, saveData, readData = extractDataDeps(allCodeFiles)
+
+# Create dependency graph
 graph = createDepGraph(data)
-graph.write_png('./dataDepsGraph.png')
+
+# Write graph to output folder
+if not os.path.exists('./dataDepsOutput'):
+    os.makedirs('./dataDepsOutput')
+graph.write_png('./dataDepsOutput/dataDepsGraph.png')
+
+# Print results and write data to json object
 outputResults()
