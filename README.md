@@ -11,3 +11,7 @@ If you save the code in another location just call it based on that location.
 The script will iterate through your entire project folder, extract files that end in ".R",
 and then collect information on data imports and data exports. The json object will be saved to
 in the 'dataDepsOutput' folder as 'dataDeps.json' and the graph as 'dataDepsGraph.svg'.
+
+Below is a very simple graph to give you a rough idea of the ouput.
+
+![](./dataDepsOutput/dataDepsGraph.png)
