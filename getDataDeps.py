@@ -115,7 +115,6 @@ def createDepGraph(data):
 
 # Recursively obtain list of R files
 allCodeFiles = getListOfFiles(".")
-print(allCodeFiles)
 
 # Extract dependencies from R files
 data, saveData, readData = extractDataDeps(allCodeFiles)
