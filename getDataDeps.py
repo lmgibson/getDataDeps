@@ -7,27 +7,27 @@ def getListOfFiles(dirName):
     # create a list of file and sub directories
     # names in the given directory
     listOfFile = os.listdir(dirName)
-    allRFiles = list()
+    allCodeFiles = list()
     # Iterate over all the entries
     for entry in listOfFile:
         # Create full path
         fullPath = os.path.join(dirName, entry)
         # If entry is a directory then get the list of files in this directory
         if os.path.isdir(fullPath):
-            allRFiles = allRFiles + getListOfFiles(fullPath)
+            allCodeFiles = allCodeFiles + getListOfFiles(fullPath)
         else:
             if entry.endswith(".R"):
-                allRFiles.append(fullPath)
+                allCodeFiles.append(fullPath)
 
-    return allRFiles
+    return allCodeFiles
 
 
-def extractDataDeps(allFiles):
+def extractDataDeps(allCodeFiles):
     data = {}
     saveData = []
     readData = []
 
-    for file in allFiles:
+    for file in allCodeFiles:
         save = os.popen(
             'cat ' + file + ' | grep -A 1 "saveRDS*" | grep -o \'".*"\' | sed \'s/"//g\'').read()
         read = os.popen(
@@ -36,19 +36,21 @@ def extractDataDeps(allFiles):
         save = save.splitlines()
         read = read.splitlines()
 
-        for x in save:
-            if x not in data:
-                data[x] = {'save': [], 'read': []}
-                data[x]['save'].append(file)
+        for dataFile in save:
+            dataFile = dataFile.rsplit('/', 1)[-1]
+            if dataFile not in data:
+                data[dataFile] = {'save': [], 'read': []}
+                data[dataFile]['save'].append(file.rsplit('/', 1)[-1])
             else:
-                data[x]['save'].append(file)
+                data[dataFile]['save'].append(file.rsplit('/', 1)[-1])
 
-        for x in read:
-            if x not in data:
-                data[x] = {'save': [], 'read': []}
-                data[x]['read'].append(file)
+        for dataFile in read:
+            dataFile = dataFile.rsplit('/', 1)[-1]
+            if dataFile not in data:
+                data[dataFile] = {'save': [], 'read': []}
+                data[dataFile]['read'].append(file.rsplit('/', 1)[-1])
             else:
-                data[x]['read'].append(file)
+                data[dataFile]['read'].append(file.rsplit('/', 1)[-1])
 
         if len(save) > 0:
             saveData.extend(save)
@@ -60,13 +62,13 @@ def extractDataDeps(allFiles):
 
 def outputResults():
     print("Saved datasets:")
-    [print("\t", x) for x in set(saveData)]
+    [print("\t", dataFile) for dataFile in set(saveData)]
 
     print("Read datasets:")
-    [print("\t", x) for x in set(readData)]
+    [print("\t", dataFile) for dataFile in set(readData)]
 
     print("Datasets that are saved and not read:")
-    [print("\t", x) for x in (set(saveData) - set(readData))]
+    [print("\t", dataFile) for dataFile in (set(saveData) - set(readData))]
 
     print("\nFor detailed information see the dataDeps.json file.")
     with open('./dataDeps.json', 'w') as outfile:
