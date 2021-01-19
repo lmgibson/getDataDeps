@@ -1,14 +1,14 @@
 # Overview
-getDataDeps-R is a script that maps data dependencies across R files in your project.
-The tool is currently a work in progress but when it is complete it will return a list of datasets
-saved and read, a json object, and a graph built from the json object.
+getDataDeps is a script that maps data dependencies across R and python files in your project.
+The tool currently tracks data dependencies in R, but can be easily extended to track files in python scripts.
 
 # Use
 The code can be ran by using `python ./getDataDeps.py` if the code is located in the root of your project.
-If you save the code in another location just call it based on that location.
+Always run the script from the root of your project. If you save the getDataDeps.py script in another location
+you can call it using `python [path to script]/getDataDeps.py`
 
 # How it works
-The script will iterate through your entire project folder, extract files that end in ".R",
+The script will iterate through your entire project folder, extract files that end in ".R" or ".py",
 and then collect information on data imports and data exports. The json object will be saved to
 in the 'dataDepsOutput' folder as 'dataDeps.json' and the graph as 'dataDepsGraph.svg'.
 
