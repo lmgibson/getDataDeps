@@ -37,9 +37,9 @@ def extractDataDeps(allCodeFiles):
 
     for file in allCodeFiles:
         save = os.popen(
-            'cat ' + file + ' | grep -A 1 "saveRDS*" | grep -o \'".*"\' | sed \'s/"//g\'').read()
+            'cat ' + file + ' | grep -A 1 "saveRDS*\|write[_.]csv*\|to_csv*" | grep -o \'".*"\' | sed \'s/"//g\'').read()
         read = os.popen(
-            'cat ' + file + ' | grep -A 1 "readRDS*" | grep -o \'".*"\' | sed \'s/"//g\'').read()
+            'cat ' + file + ' | grep -A 1 "readRDS*\|read_csv*" | grep -o \'".*"\' | sed \'s/"//g\'').read()
 
         save = save.splitlines()
         read = read.splitlines()
@@ -68,23 +68,6 @@ def extractDataDeps(allCodeFiles):
     return data, saveData, readData
 
 
-def outputResults():
-    print("Saved datasets:")
-    [print("\t", dataFile) for dataFile in set(saveData)]
-
-    print("Read datasets:")
-    [print("\t", dataFile) for dataFile in set(readData)]
-
-    print("Datasets that are saved and not read:")
-    [print("\t", dataFile) for dataFile in (set(saveData) - set(readData))]
-
-    print("\nFor detailed information see the dataDeps.json file.")
-    with open('./dataDepsOutput/dataDeps.json', 'w') as outfile:
-        json.dump(data, outfile)
-
-    print("\nA graph of your data dependencies is available as './dataDepsOutput/dataDepsGraph.png'")
-
-
 def createDepGraph(data):
     dot_graph = pydot.Dot(graph_type='digraph')
 
@@ -111,6 +94,23 @@ def createDepGraph(data):
                 dot_graph.add_edge(edge)
 
     return dot_graph
+
+
+def outputResults():
+    print("Saved datasets:")
+    [print("\t", dataFile) for dataFile in set(saveData)]
+
+    print("Read datasets:")
+    [print("\t", dataFile) for dataFile in set(readData)]
+
+    print("Datasets that are saved and not read:")
+    [print("\t", dataFile) for dataFile in (set(saveData) - set(readData))]
+
+    print("\nFor detailed information see the dataDeps.json file.")
+    with open('./dataDepsOutput/dataDeps.json', 'w') as outfile:
+        json.dump(data, outfile)
+
+    print("\nA graph of your data dependencies is available as './dataDepsOutput/dataDepsGraph.png'")
 
 
 # Recursively obtain list of R files
