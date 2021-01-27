@@ -36,10 +36,16 @@ def extractDataDeps(allCodeFiles):
     readData = []
 
     for file in allCodeFiles:
-        save = os.popen(
-            'cat ' + file + ' | grep -A 1 "saveRDS*\|write[_.]csv*\|to_csv*" | grep -o \'".*"\' | sed \'s/"//g\'').read()
-        read = os.popen(
-            'cat ' + file + ' | grep -A 1 "readRDS*\|read_csv*" | grep -o \'".*"\' | sed \'s/"//g\'').read()
+        if any(fileEnding in file for fileEnding in ['.R', '.py']):
+            save = os.popen(
+                'cat ' + file + ' | grep -A 1 "saveRDS*\|write[_.]csv*\|to_csv*" | grep -o \'".*"\' | sed \'s/"//g\'').read()
+            read = os.popen(
+                'cat ' + file + ' | grep -A 1 "readRDS*\|read_csv*" | grep -o \'".*"\' | sed \'s/"//g\'').read()
+        elif '.do' in file:
+            save = os.popen(
+                'cat ' + file + ' | grep "outfile" | grep -o \'".*"\' | sed \'s/"//g\'').read()
+            read = os.popen(
+                'cat ' + file + ' | grep -A 1 "infile\|use" | grep -o \'".*"\' | sed \'s/"//g\'').read()
 
         save = save.splitlines()
         read = read.splitlines()
