@@ -46,6 +46,11 @@ def extractDataDeps(allCodeFiles):
                 'cat ' + file + ' | grep "outfile" | grep -o \'".*"\' | sed \'s/"//g\'').read()
             read = os.popen(
                 'cat ' + file + ' | grep -A 1 "infile\|use" | grep -o \'".*"\' | sed \'s/"//g\'').read()
+        else:
+            save = os.popen(
+                'cat ' + file + ' | grep -A 1 "saveRDS*\|write[_.]csv*\|to_csv*" | grep -o \'".*"\' | sed \'s/"//g\'').read()
+            read = os.popen(
+                'cat ' + file + ' | grep -A 1 "readRDS*\|read_csv*" | grep -o \'".*"\' | sed \'s/"//g\'').read()
 
         save = save.splitlines()
         read = read.splitlines()
