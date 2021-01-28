@@ -36,21 +36,23 @@ def extractDataDeps(allCodeFiles):
     readData = []
 
     for file in allCodeFiles:
+        # Cat reads out contents of found script, first grep finds all lines with import / export commands,
+        # second grep finds things stuck between double quotes, third grep removes the quotes
         if any(fileEnding in file for fileEnding in ['.R', '.py']):
             save = os.popen(
-                'cat ' + file + ' | grep -A 1 "saveRDS*\|write[_.]csv*\|to_csv*" | grep -o \'".*"\' | sed \'s/"//g\'').read()
+                'cat ' + file + ' | grep -A 1 "saveRDS*\|write[_.]csv*\|to_csv*" | grep -o \'".*"\' | sed \'s/"//g\' ').read()
             read = os.popen(
-                'cat ' + file + ' | grep -A 1 "readRDS*\|read_csv*" | grep -o \'".*"\' | sed \'s/"//g\'').read()
+                'cat ' + file + ' | grep -A 1 "readRDS*\|read_csv*" | grep -o \'".*"\' | sed \'s/"//g\' ').read()
         elif '.do' in file:
             save = os.popen(
-                'cat ' + file + ' | grep "outfile" | grep -o \'".*"\' | sed \'s/"//g\'').read()
+                'cat ' + file + ' | grep "save" | awk \'{print $2}\' ').read()
             read = os.popen(
-                'cat ' + file + ' | grep -A 1 "infile\|use" | grep -o \'".*"\' | sed \'s/"//g\'').read()
+                'cat ' + file + ' | grep -A 1 "infile\|use" | grep -o \'".*"\' | sed \'s/"//g\' ').read()
         else:
             save = os.popen(
-                'cat ' + file + ' | grep -A 1 "saveRDS*\|write[_.]csv*\|to_csv*" | grep -o \'".*"\' | sed \'s/"//g\'').read()
+                'cat ' + file + ' | grep -A 1 "saveRDS*\|write[_.]csv*\|to_csv*" | grep -o \'".*"\' | sed \'s/"//g\' ').read()
             read = os.popen(
-                'cat ' + file + ' | grep -A 1 "readRDS*\|read_csv*" | grep -o \'".*"\' | sed \'s/"//g\'').read()
+                'cat ' + file + ' | grep -A 1 "readRDS*\|read_csv*" | grep -o \'".*"\' | sed \'s/"//g\' ').read()
 
         save = save.splitlines()
         read = read.splitlines()
