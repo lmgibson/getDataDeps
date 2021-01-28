@@ -1,5 +1,5 @@
-use ./data/cleaned/modelResults.csv
+import delimited ./data/cleaned/modelResults.csv
 
 describe
 
-save ./data/cleaned/results.dta
+export stata ./data/cleaned/results.dta
