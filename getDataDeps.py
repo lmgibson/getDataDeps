@@ -64,10 +64,8 @@ def extractDataDeps(allCodeFiles):
             read = os.popen(
                 'cat ' + file + ' | grep "import" | awk \'{print $3}\' ').read()
         else:
-            save = os.popen(
-                'cat ' + file + ' | grep -A 1 "saveRDS*\|write[_.]csv*\|to_csv*" | grep -o \'".*"\' | sed \'s/"//g\' ').read()
-            read = os.popen(
-                'cat ' + file + ' | grep -A 1 "readRDS*\|read_csv*" | grep -o \'".*"\' | sed \'s/"//g\' ').read()
+            sys.exit(
+                "Something went wrong. The 'getListOfFiles' function saved a file that doesn't end in .do, .R, or .py")
 
         save = save.splitlines()
         read = read.splitlines()
