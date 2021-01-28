@@ -1,6 +1,21 @@
 import json
 import pydot
 import os
+import sys
+
+
+def getDirectoryToMap():
+    """
+    If a directory is given the script willstick to that directory. Otherwise
+    it will search the directory in which the script is initialized.
+    Returns string variable.
+    """
+    if len(sys.argv) > 1:
+        dirToSearch = sys.argv[1]
+    else:
+        dirToSearch = "."
+
+    return dirToSearch
 
 
 def getListOfFiles(dirName):
@@ -126,19 +141,24 @@ def outputResults():
     print("\nA graph of your data dependencies is available as './dataDepsOutput/dataDepsGraph.png'")
 
 
-# Recursively obtain list of R files
-allCodeFiles = getListOfFiles(".")
+if __name__ == '__main__':
+    # Note, if you drop this into a function it greys out saveData and readData. Not sure why.
+    # Get dir to search, if given
+    dirToSearch = getDirectoryToMap()
 
-# Extract dependencies from R files
-data, saveData, readData = extractDataDeps(allCodeFiles)
+    # Recursively obtain list of R files
+    allCodeFiles = getListOfFiles(dirToSearch)
 
-# Create dependency graph
-graph = createDepGraph(data)
+    # Extract dependencies from R files
+    data, saveData, readData = extractDataDeps(allCodeFiles)
 
-# Write graph to output folder
-if not os.path.exists('./dataDepsOutput'):
-    os.makedirs('./dataDepsOutput')
-graph.write_png('./dataDepsOutput/dataDepsGraph.png')
+    # Create dependency graph
+    graph = createDepGraph(data)
 
-# Print results and write data to json object
-outputResults()
+    # Write graph to output folder
+    if not os.path.exists('./dataDepsOutput'):
+        os.makedirs('./dataDepsOutput')
+    graph.write_png('./dataDepsOutput/dataDepsGraph.png')
+
+    # Print results and write data to json object
+    outputResults()
