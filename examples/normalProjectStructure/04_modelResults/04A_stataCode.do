@@ -1,5 +1,5 @@
-use analytic.dta
+use ./data/cleaned/modelResults.csv
 
 describe
 
-save analytic.dta, replace
+save ./data/cleaned/results.dta

@@ -24,7 +24,7 @@ def getListOfFiles(dirName):
         if os.path.isdir(fullPath):
             allCodeFiles = allCodeFiles + getListOfFiles(fullPath)
         else:
-            if (entry.endswith(".R") or entry.endswith(".py")) and (not any([x in fullPath for x in ignoreDirectoriesContaining])):
+            if (entry.endswith(".R") or entry.endswith(".py") or entry.endswith(".do")) and (not any([x in fullPath for x in ignoreDirectoriesContaining])):
                 allCodeFiles.append(fullPath)
 
     return allCodeFiles
@@ -44,11 +44,10 @@ def extractDataDeps(allCodeFiles):
             read = os.popen(
                 'cat ' + file + ' | grep -A 1 "readRDS*\|read_csv*" | grep -o \'".*"\' | sed \'s/"//g\' ').read()
         elif '.do' in file:
-            print("Hello!!!")
             save = os.popen(
                 'cat ' + file + ' | grep "save" | awk \'{print $2}\' ').read()
             read = os.popen(
-                'cat ' + file + ' | grep -A 1 "infile\|sysuse\|use" | awk \'{print $2}\' ').read()
+                'cat ' + file + ' | grep "infile\|sysuse\|use" | awk \'{print $2}\' ').read()
         else:
             save = os.popen(
                 'cat ' + file + ' | grep -A 1 "saveRDS*\|write[_.]csv*\|to_csv*" | grep -o \'".*"\' | sed \'s/"//g\' ').read()
