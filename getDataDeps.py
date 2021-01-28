@@ -44,10 +44,11 @@ def extractDataDeps(allCodeFiles):
             read = os.popen(
                 'cat ' + file + ' | grep -A 1 "readRDS*\|read_csv*" | grep -o \'".*"\' | sed \'s/"//g\' ').read()
         elif '.do' in file:
+            print("Hello!!!")
             save = os.popen(
-                'cat ' + file + ' | grep "save\|sysuse" | awk \'{print $2}\' ').read()
+                'cat ' + file + ' | grep "save" | awk \'{print $2}\' ').read()
             read = os.popen(
-                'cat ' + file + ' | grep -A 1 "infile\|use" | awk \'{print $2}\' ').read()
+                'cat ' + file + ' | grep -A 1 "infile\|sysuse\|use" | awk \'{print $2}\' ').read()
         else:
             save = os.popen(
                 'cat ' + file + ' | grep -A 1 "saveRDS*\|write[_.]csv*\|to_csv*" | grep -o \'".*"\' | sed \'s/"//g\' ').read()
