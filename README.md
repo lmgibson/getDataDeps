@@ -1,3 +1,5 @@
+[![Build Status](https://www.travis-ci.com/lmgibson/getDataDeps.svg?branch=main)](https://www.travis-ci.com/lmgibson/getDataDeps)
+
 # Overview
 
 getDataDeps is a script that maps data dependencies across R and python files in your project. The tool currently tracks data dependencies for several import/export commands in R, python, and Stata.
