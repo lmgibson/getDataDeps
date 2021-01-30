@@ -5,7 +5,7 @@ dt <- tibble(
     "B" = c(rep(1, 1000))
 )
 
-sqlCall <- "SELECT * FROM db.dba.hello FROM something.dba.hi"
+sqlCall <- "SELECT * FROM db.dba.hello FROM something.dba.hi""
 saveRDS(
     dt,
     "./data/analytic.rds"
