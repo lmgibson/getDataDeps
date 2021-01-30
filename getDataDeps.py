@@ -62,23 +62,23 @@ def extractDataDeps(allCodeFiles):
                 'cat ' + file + ' | grep -A 1 "saveRDS*\|write[_.]csv*\|to_csv*" | grep -o \'".*"\' | sed \'s/"//g\' ').read()
             read = os.popen(
                 'cat ' + file + ' | grep -A 1 "readRDS*\|read_csv*" | grep -o \'".*"\' | sed \'s/"//g\' ').read()
-            readSQL = os.popen(
-                'cat ' + file + ' | grep "FROM" | awk \'{for(i=1; i<=NF; i++) if($i~/FROM/) print $(i+1)}\' | sed \'s/"//g\'').read()
+            # readSQL = os.popen(
+            #     'cat ' + file + ' | grep "FROM" | awk \'{for(i=1; i<=NF; i++) if($i~/FROM/) print $(i+1)}\' | sed \'s/"//g\'').read()
         elif '.do' in file:
             save = os.popen(
                 'cat ' + file + ' | grep "export" | awk \'{print $3}\' ').read()
             read = os.popen(
                 'cat ' + file + ' | grep "import" | awk \'{print $3}\' ').read()
-            readSQL = os.popen(
-                'cat ' + file + ' | grep "FROM" | awk \'{for(i=1; i<=NF; i++) if($i~/FROM/) print $(i+1)}\' | sed \'s/"//g\'').read()
+            # readSQL = os.popen(
+            #     'cat ' + file + ' | grep "FROM" | awk \'{for(i=1; i<=NF; i++) if($i~/FROM/) print $(i+1)}\' | sed \'s/"//g\'').read()
         else:
             sys.exit(
                 "Something went wrong. The 'getListOfFiles' function saved a file that doesn't end in .do, .R, or .py")
 
         save = save.splitlines()
         read = read.splitlines()
-        readSQL = readSQL.splitlines()
-        read.extend(readSQL)
+        # readSQL = readSQL.splitlines()
+        # read.extend(readSQL)
 
         for dataFile in save:
             dataFile = dataFile.rsplit('/', 1)[-1]

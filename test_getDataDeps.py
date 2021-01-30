@@ -1,10 +1,6 @@
 import getDataDeps
 
 
-def test_always_passes():
-    assert True
-
-
 def test_getListOfFiles_structure():
     listOfFiles = getDataDeps.getListOfFiles(
         './examples/normalProjectStructure')
@@ -31,8 +27,8 @@ def test_extractDataDeps_structure():
     assert len(save) == 5
 
     assert read is not None
-    assert len(read) == 7
+    assert len(read) == 5
 
     assert data is not None
-    assert len(data) == 8
-    assert [len(data[x]) for x in data] == [2, 2, 2, 2, 2, 2, 2, 2]
+    assert len(data) == 6
+    assert [len(data[x]) for x in data] == [2, 2, 2, 2, 2, 2]
