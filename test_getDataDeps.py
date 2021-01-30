@@ -28,10 +28,10 @@ def test_extractDataDeps_structure():
     data, save, read = getDataDeps.extractDataDeps(example_file_structure)
 
     assert save is not None
-    assert len(save) == 7
+    assert len(save) == 5
 
     assert read is not None
-    assert len(read) == 5
+    assert len(read) == 7
 
     assert data is not None
     assert len(data) == 8

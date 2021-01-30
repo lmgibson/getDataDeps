@@ -44,6 +44,8 @@ def getListOfFiles(dirName):
             if (entry.endswith(".R") or entry.endswith(".py") or entry.endswith(".do")) and (not any([x in fullPath for x in ignoreDirectoriesContaining])):
                 allCodeFiles.append(fullPath)
 
+    # Fixes paths if this is run on windows, has no impact on macs
+    allCodeFiles = [x.replace('\\', '/') for x in allCodeFiles]
     return allCodeFiles
 
 
