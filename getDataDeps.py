@@ -66,6 +66,9 @@ def extractDataDeps(allCodeFiles):
             # readSQL = os.popen(
             #     'cat ' + file + ' | grep "FROM" | awk \'{for(i=1; i<=NF; i++) if($i~/FROM/) print $(i+1)}\' | sed \'s/"//g\'').read()
         elif '.do' in file:
+            # Grepping commands
+            # foreachVars = os.popen(
+            #     'cat ' + file + ' | awk \'{$1=$1;print}\' | grep "^foreach .* in" | awk \'{for(i=2;i<NF;i++)print $(i)}\' | sed \'s/in//g\' | tr \'\n\' \',\' | sed \'s/,,/,/g\' ').read()
             localVars = os.popen(
                 'cat ' + file + ' | grep "^local" | awk \'{print $2,$3}\' | sed \'s/ /,/g\' ').read()
             save = os.popen(
