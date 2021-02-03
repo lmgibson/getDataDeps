@@ -74,7 +74,9 @@ def extractDataDeps(allCodeFiles):
                 'cat ' + file + ' | grep "import" | awk \'{print $3}\' | sed \'s/,//g\' | sed \'s/\"//g\' ').read()
             read_use = os.popen(
                 'cat ' + file + ' | grep "use" | awk \'{print $2}\' | sed \'s/,//g\' | sed \'s/\"//g\' ').read()
-            read = read_import + read_use
+            read_merge = os.popen(
+                'cat ' + file + ' | grep "merge" | grep -o \'".*"\' | sed \'s/"//g\' ').read()
+            read = read_import + read_use + read_merge
 
             # Converting local var into dictionary.
             localVarDict = {}
@@ -87,6 +89,11 @@ def extractDataDeps(allCodeFiles):
             for j in localVarDict:
                 save = save.replace(j, localVarDict[j])
                 read = read.replace(j, localVarDict[j])
+
+            # Removing the local var tags `xxx'
+            save = save.replace('`', '').replace('\'', '')
+            read = read.replace('`', '').replace('\'', '')
+            print("Read: ", read)
         else:
             sys.exit(
                 "Something went wrong. The 'getListOfFiles' function saved a file that doesn't end in .do, .R, or .py")
