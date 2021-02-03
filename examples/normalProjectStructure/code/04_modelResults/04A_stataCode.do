@@ -2,4 +2,4 @@ import delimited ./data/cleaned/modelResults.csv
 
 describe
 
-export stata ./data/cleaned/results.dta
+save ./data/cleaned/results.dta
