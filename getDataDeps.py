@@ -66,6 +66,8 @@ def extractDataDeps(allCodeFiles):
             # readSQL = os.popen(
             #     'cat ' + file + ' | grep "FROM" | awk \'{for(i=1; i<=NF; i++) if($i~/FROM/) print $(i+1)}\' | sed \'s/"//g\'').read()
         elif '.do' in file:
+            localVars = os.popen(
+                'cat ' + file + ' | grep "^local" | awk \'{print $2,$3}\' | sed \'s/ /,/g\' ').read()
             save = os.popen(
                 'cat ' + file + ' | grep "save" | awk \'{print $2}\' | sed \'s/,//g\' | sed \'s/\"//g\' ').read()
             read_import = os.popen(
@@ -73,18 +75,24 @@ def extractDataDeps(allCodeFiles):
             read_use = os.popen(
                 'cat ' + file + ' | grep "use" | awk \'{print $2}\' | sed \'s/,//g\' | sed \'s/\"//g\' ').read()
             read = read_import + read_use
-            # readSQL = os.popen(
-            #     'cat ' + file + ' | grep "FROM" | awk \'{for(i=1; i<=NF; i++) if($i~/FROM/) print $(i+1)}\' | sed \'s/"//g\'').read()
+
+            # Converting local var into dictionary.
+            localVarDict = {}
+            for i in [x.split(',') for x in localVars.splitlines()]:
+                if len(i) > 0:
+                    localVarDict[i[0]] = i[1]
+
+            # Replacing values matching keys in local vars with the
+            # keys value. Assumes local vars are constant through script.
+            for j in localVarDict:
+                save = save.replace(j, localVarDict[j])
+                read = read.replace(j, localVarDict[j])
         else:
             sys.exit(
                 "Something went wrong. The 'getListOfFiles' function saved a file that doesn't end in .do, .R, or .py")
 
         save = save.splitlines()
         read = read.splitlines()
-        print(save)
-        print(read)
-        # readSQL = readSQL.splitlines()
-        # read.extend(readSQL)
 
         for dataFile in save:
             dataFile = dataFile.rsplit('/', 1)[-1]
