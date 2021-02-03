@@ -55,6 +55,7 @@ def extractDataDeps(allCodeFiles):
     readData = []
 
     for file in allCodeFiles:
+        print(file)
         # Cat reads out contents of found script, first grep finds all lines with import / export commands,
         # second grep finds things stuck between double quotes, third grep removes the quotes
         if any(fileEnding in file for fileEnding in ['.R', '.py']):
@@ -66,9 +67,12 @@ def extractDataDeps(allCodeFiles):
             #     'cat ' + file + ' | grep "FROM" | awk \'{for(i=1; i<=NF; i++) if($i~/FROM/) print $(i+1)}\' | sed \'s/"//g\'').read()
         elif '.do' in file:
             save = os.popen(
-                'cat ' + file + ' | grep "export" | awk \'{print $3}\' ').read()
-            read = os.popen(
-                'cat ' + file + ' | grep "import" | awk \'{print $3}\' ').read()
+                'cat ' + file + ' | grep "save" | awk \'{print $2}\' | sed \'s/,//g\' | sed \'s/\"//g\' ').read()
+            read_import = os.popen(
+                'cat ' + file + ' | grep "import" | awk \'{print $3}\' | sed \'s/,//g\' | sed \'s/\"//g\' ').read()
+            read_use = os.popen(
+                'cat ' + file + ' | grep "use" | awk \'{print $2}\' | sed \'s/,//g\' | sed \'s/\"//g\' ').read()
+            read = read_import + read_use
             # readSQL = os.popen(
             #     'cat ' + file + ' | grep "FROM" | awk \'{for(i=1; i<=NF; i++) if($i~/FROM/) print $(i+1)}\' | sed \'s/"//g\'').read()
         else:
@@ -77,6 +81,8 @@ def extractDataDeps(allCodeFiles):
 
         save = save.splitlines()
         read = read.splitlines()
+        print(save)
+        print(read)
         # readSQL = readSQL.splitlines()
         # read.extend(readSQL)
 
