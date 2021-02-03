@@ -69,14 +69,16 @@ def extractDataDeps(allCodeFiles):
             localVars = os.popen(
                 'cat ' + file + ' | grep "^local" | awk \'{print $2,$3}\' | sed \'s/ /,/g\' ').read()
             save = os.popen(
-                'cat ' + file + ' | grep "save" | awk \'{print $2}\' | sed \'s/,//g\' | sed \'s/\"//g\' ').read()
+                'cat ' + file + ' | grep "^save" | awk \'{print $2}\' | sed \'s/,//g\' | sed \'s/\"//g\' ').read()
             read_import = os.popen(
-                'cat ' + file + ' | grep "import" | awk \'{print $3}\' | sed \'s/,//g\' | sed \'s/\"//g\' ').read()
+                'cat ' + file + ' | grep "^import" | awk \'{print $3}\' | sed \'s/,//g\' | sed \'s/\"//g\' ').read()
             read_use = os.popen(
-                'cat ' + file + ' | grep "use" | awk \'{print $2}\' | sed \'s/,//g\' | sed \'s/\"//g\' ').read()
+                'cat ' + file + ' | grep "^use" | awk \'{print $2}\' | sed \'s/,//g\' | sed \'s/\"//g\' ').read()
             read_merge = os.popen(
-                'cat ' + file + ' | grep "merge" | grep -o \'".*"\' | sed \'s/"//g\' ').read()
-            read = read_import + read_use + read_merge
+                'cat ' + file + ' | awk \'{$1=$1;print}\' | grep "^merge" | awk \'{for(i=1;i<=NF;i++)if($i=="using")print $(i+1)}\' | sed \'s/\"//g\' ').read()
+            read_append = os.popen(
+                'cat ' + file + ' | awk \'{$1=$1;print}\' | grep "^append" | awk \'{for(i=1;i<=NF;i++)if($i=="using")print $(i+1)}\' | sed \'s/\"//g\' ').read()
+            read = read_import + read_use + read_merge + read_append
 
             # Converting local var into dictionary.
             localVarDict = {}
@@ -93,6 +95,7 @@ def extractDataDeps(allCodeFiles):
             # Removing the local var tags `xxx'
             save = save.replace('`', '').replace('\'', '')
             read = read.replace('`', '').replace('\'', '')
+            print("Save: ", save)
             print("Read: ", read)
         else:
             sys.exit(
