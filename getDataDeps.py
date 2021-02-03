@@ -85,16 +85,12 @@ def extractDataDeps(allCodeFiles):
             for i in [x.split(',') for x in localVars.splitlines()]:
                 if len(i) > 0:
                     localVarDict[('`' + i[0] + '\'')] = i[1]
-            print(localVarDict)
-            print("Save: ", save)
-            print("Read: ", read)
+
             # Replacing values matching keys in local vars with the
             # keys value. Assumes local vars are constant through script.
             for j in localVarDict:
                 save = save.replace(j, localVarDict[j])
                 read = read.replace(j, localVarDict[j])
-            print("Save: ", save)
-            print("Read: ", read)
 
             # Removing the temp file tags `xxx'
             save = save.replace('`', '').replace('\'', '')
