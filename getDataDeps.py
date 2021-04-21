@@ -244,6 +244,7 @@ if __name__ == '__main__':
     # Write graph to output folder
     if not os.path.exists('./dataDepsOutput'):
         os.makedirs('./dataDepsOutput')
+
     graph.write_png('./dataDepsOutput/dataDepsGraph.png')
 
     # Print results and write data to json object
