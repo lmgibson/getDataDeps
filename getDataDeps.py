@@ -128,6 +128,22 @@ def extractDoFiles(file):
 
 
 def cleanFilePaths(file, listOfResults, type=None):
+    """
+    Constructs the data which consists of a dictionary within a dictionary.
+    The first level has keys that are the data file name, and the second
+    level contains two keys: saved and read. Within 'saved' and 'read'
+    are a list that contains the scripts that either save or read
+    the data file.
+
+    Args:
+        file (str): Path to a script that is being scanned
+        listOfResults (list): List of strings of data files used in file
+        type (string, optional): String to indicate if the list supplied
+        contains saved datafiles or read data files. Defaults to None.
+
+    Returns:
+        dict : Dictionary of format described above
+    """
     if type not in ['save', 'read']:
         raise ValueError(
             "Please specify whether or not listOfResults is"
@@ -152,6 +168,20 @@ def cleanFilePaths(file, listOfResults, type=None):
 
 
 def extractDataDeps(listOfCodeFiles):
+    """
+    The meat. Takes in a list of files, examines relevant files for datafiles
+    saved or read, and exports the results in a dictionary labeled 'data'.
+
+    Args:
+        listOfCodeFiles (list): List of strings where each string is a file in
+        the supplied directory.
+
+    Returns:
+        dict: Returns three dictionaries that contain a top-level dictionary
+        where the key is the data file, a sub-level dictionary where the key
+        is 'saved' or 'read' and within each of those keys a list of strings
+        of the files that use the top-level key.
+    """
     data = {}
     saveData = []
     readData = []
@@ -183,6 +213,17 @@ def extractDataDeps(listOfCodeFiles):
 
 
 def createDepGraph(data):
+    """
+    Constructs a graph connecting data files to scripts using the multi-level
+    dictionary object.
+
+    Args:
+        data (dictionary): Multi-level dictionary connecting data files to 
+        scripts that save and read them.
+
+    Returns:
+        graph: A pydot graph object
+    """
     dot_graph = pydot.Dot(graph_type='digraph')
 
     for i, val in enumerate(data):
@@ -211,6 +252,12 @@ def createDepGraph(data):
 
 
 def saveGraph(graph):
+    """
+    Constructs directory for graph if it doesn't exist. Saves graph.
+
+    Args:
+        graph (graph): Pydot graph object.
+    """
     if not os.path.exists('%sdataDepsOutput' % (dirToSearch)):
         os.makedirs('%sdataDepsOutput' % (dirToSearch))
 
@@ -221,6 +268,13 @@ def saveGraph(graph):
 
 
 def writeData(data):
+    """
+    Saves data dictionary out as a json object.
+
+    Args:
+        data (dict): Dictionary mapping data files to the
+        scripts that save and read them.
+    """
     fileName = '%sdataDepsOutput/dataDeps.json' % (dirToSearch)
 
     with open(fileName, 'w') as outfile:
@@ -228,6 +282,9 @@ def writeData(data):
 
 
 def printResults():
+    """
+    Prints results to console.
+    """
     print("\nSaved datasets:\n")
     [print("\t", dataFile) for dataFile in set(saveData)]
 
