@@ -8,7 +8,10 @@ def getDirectoryToMap():
     """
     If a directory is given the script willstick to that directory. Otherwise
     it will search the directory in which the script is initialized.
-    Returns string variable.
+
+    Returns
+    -------
+        [str] : string indicating the path to the directory to search
     """
     if len(sys.argv) > 1:
         dirToSearch = sys.argv[1]
@@ -19,6 +22,16 @@ def getDirectoryToMap():
 
 
 def getListOfFiles(dirName):
+    """Given a directory path finds all .R, .py, and .do files
+    within that directory. Returns files and their paths (relative
+    to the specified directory) in a list
+
+    Args:
+        dirName (str): Path of directory to search
+
+    Returns:
+        list: List of relative file paths for .R, .py, and .do files
+    """
     # create a list of file and sub directories
     # names in the given directory
     listOfFile = os.listdir(dirName)
@@ -29,9 +42,9 @@ def getListOfFiles(dirName):
         'conda-env', 'archive', 'old', 'getDataDeps']
 
     # Iterate over all the entries
-    for entry in listOfFile:
-        # Create full path
-        fullPath = os.path.join(dirName, entry)
+    for file in listOfFile:
+        # Create relative path from given directory
+        fullPath = os.path.join(dirName, file)
 
         # If entry is a directory then get the list of files in this directory
         # if it isn't a directory, and ends with .R  or .py and the fullpath doesn't contain
@@ -39,10 +52,10 @@ def getListOfFiles(dirName):
         if os.path.isdir(fullPath):
             allCodeFiles = allCodeFiles + getListOfFiles(fullPath)
         else:
-            if (entry.endswith(".R") or entry.endswith(".py") or entry.endswith(".do")) and (not any([x in fullPath for x in ignoreDirectoriesContaining])):
+            if (file.endswith(".R") or file.endswith(".py") or file.endswith(".do")) and (not any([x in fullPath for x in ignoreDirectoriesContaining])):
                 allCodeFiles.append(fullPath)
 
-    # Fixes paths if this is run on windows, has no impact on macs
+    # Fix paths if run on windows Unix emulator, has no impact on macs
     allCodeFiles = [x.replace('\\', '/') for x in allCodeFiles]
     return allCodeFiles
 
