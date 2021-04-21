@@ -15,7 +15,7 @@ def getDirectoryToMap():
     if len(sys.argv) > 1:
         dirToSearch = sys.argv[1]
     else:
-        dirToSearch = "."
+        dirToSearch = "./"
 
     return dirToSearch
 
