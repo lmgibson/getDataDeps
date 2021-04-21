@@ -12,7 +12,7 @@ getDataDeps is a script that maps data dependencies across R and python files in
 2. Download the script, getDataDeps.py.
 3. Navigate to the root of a project directory, such as `cd ~/Desktop/project/statisticsAndStuff`.
 4. On the command line run: `python path/to/script/getDataDeps.py`
-   - This will map the entire directory. If you wish to map a subdirectory specificy the directory as an option: `python paht/to/script/getDataDeps.py ./code`
+   - This will map the entire directory. If you wish to map a subdirectory specificy the directory as an option: `python path/to/script/getDataDeps.py ./code`
 
 If successful, the script will return output to the terminal as well as two files located in dataDepsOutput within the root of your project directory. One of the files will be a png file that contains the graph of how your data flows through the project, such as the one below.
 
