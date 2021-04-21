@@ -127,7 +127,7 @@ def extractDoFiles(file):
     return save, read
 
 
-def cleanFilePaths(listOfResults, type=None):
+def cleanFilePaths(file, listOfResults, type=None):
     if type not in ['save', 'read']:
         raise ValueError(
             "Please specify whether or not listOfResults is"
@@ -138,13 +138,17 @@ def cleanFilePaths(listOfResults, type=None):
             "Please provide a list to 'listOfResults'"
         )
 
+    results = {}
+
     for dataFile in listOfResults:
         dataFile = dataFile.rsplit('/', 1)[-1]
-        if dataFile not in data:
-            data[dataFile] = {'save': [], 'read': []}
-            data[dataFile][type].append(listOfResults.rsplit('/', 1)[-1])
+        if dataFile not in results:
+            results[dataFile] = {'save': [], 'read': []}
+            results[dataFile][type].append(file.rsplit('/', 1)[-1])
         else:
-            data[dataFile][type].append(listOfResults.rsplit('/', 1)[-1])
+            results[dataFile][type].append(file.rsplit('/', 1)[-1])
+
+    return results
 
 
 def extractDataDeps(listOfCodeFiles):
@@ -167,21 +171,8 @@ def extractDataDeps(listOfCodeFiles):
         save = save.splitlines()
         read = read.splitlines()
 
-        for dataFile in save:
-            dataFile = dataFile.rsplit('/', 1)[-1]
-            if dataFile not in data:
-                data[dataFile] = {'save': [], 'read': []}
-                data[dataFile]['save'].append(file.rsplit('/', 1)[-1])
-            else:
-                data[dataFile]['save'].append(file.rsplit('/', 1)[-1])
-
-        for dataFile in read:
-            dataFile = dataFile.rsplit('/', 1)[-1]
-            if dataFile not in data:
-                data[dataFile] = {'save': [], 'read': []}
-                data[dataFile]['read'].append(file.rsplit('/', 1)[-1])
-            else:
-                data[dataFile]['read'].append(file.rsplit('/', 1)[-1])
+        data.update(cleanFilePaths(file, save, type='save'))
+        data.update(cleanFilePaths(file, read, type='read'))
 
         if len(save) > 0:
             saveData.extend(save)
@@ -241,11 +232,14 @@ if __name__ == '__main__':
     # Get dir to search, if given
     dirToSearch = getDirectoryToMap()
 
-    # Recursively obtain list of R files
+    # Recursively obtain list of files
     listOfCodeFiles = getListOfFiles(dirToSearch)
 
-    # Extract dependencies from R files
+    # Extract dependencies from files
     data, saveData, readData = extractDataDeps(listOfCodeFiles)
+
+    print(data)
+    exit()
 
     # Create dependency graph
     graph = createDepGraph(data)
