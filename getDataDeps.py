@@ -238,9 +238,6 @@ if __name__ == '__main__':
     # Extract dependencies from files
     data, saveData, readData = extractDataDeps(listOfCodeFiles)
 
-    print(data)
-    exit()
-
     # Create dependency graph
     graph = createDepGraph(data)
 
