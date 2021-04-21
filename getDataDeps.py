@@ -9,9 +9,8 @@ def getDirectoryToMap():
     If a directory is given the script willstick to that directory. Otherwise
     it will search the directory in which the script is initialized.
 
-    Returns
-    -------
-        [str] : string indicating the path to the directory to search
+    Returns:
+        str : string indicating the path to the directory to search
     """
     if len(sys.argv) > 1:
         dirToSearch = sys.argv[1]
@@ -22,7 +21,8 @@ def getDirectoryToMap():
 
 
 def getListOfFiles(dirName):
-    """Given a directory path finds all .R, .py, and .do files
+    """
+    Given a directory path finds all .R, .py, and .do files
     within that directory. Returns files and their paths (relative
     to the specified directory) in a list
 
@@ -35,7 +35,7 @@ def getListOfFiles(dirName):
     # create a list of file and sub directories
     # names in the given directory
     listOfFile = os.listdir(dirName)
-    allCodeFiles = list()
+    listOfCodeFiles = list()
 
     # blacklisted directory names
     ignoreDirectoriesContaining = [
@@ -50,66 +50,116 @@ def getListOfFiles(dirName):
         # if it isn't a directory, and ends with .R  or .py and the fullpath doesn't contain
         # a blacklisted string, then append it to list of R files.
         if os.path.isdir(fullPath):
-            allCodeFiles = allCodeFiles + getListOfFiles(fullPath)
+            listOfCodeFiles = listOfCodeFiles + getListOfFiles(fullPath)
         else:
             if (file.endswith(".R") or file.endswith(".py") or file.endswith(".do")) and (not any([x in fullPath for x in ignoreDirectoriesContaining])):
-                allCodeFiles.append(fullPath)
+                listOfCodeFiles.append(fullPath)
 
     # Fix paths if run on windows Unix emulator, has no impact on macs
-    allCodeFiles = [x.replace('\\', '/') for x in allCodeFiles]
-    return allCodeFiles
+    listOfCodeFiles = [x.replace('\\', '/') for x in listOfCodeFiles]
+
+    return listOfCodeFiles
 
 
-def extractDataDeps(allCodeFiles):
+def extractPyOrRFiles(file):
+    """
+    Uses Unix commands to search for and extract datasets from R
+    or Python files.
+
+    Args:
+        file (str): Path to a .R or .Py file
+
+    Returns:
+        list: A list of strings containing the datasets saved and read
+    """
+    save = os.popen(
+        'cat ' + file + ' | grep -A 1 "saveRDS*\|write[_.]csv*\|to_csv*" | grep -o \'".*"\' | sed \'s/"//g\' ').read()
+    read = os.popen(
+        'cat ' + file + ' | grep -A 1 "readRDS*\|read_csv*" | grep -o \'".*"\' | sed \'s/"//g\' ').read()
+
+    return save, read
+
+
+def extractDoFiles(file):
+    """
+    EXPERIMENTAL
+    Uses Unix commands to search for and extract datasets from do files.
+
+    Args:
+        file (str): Path to a .R or .Py file
+
+    Returns:
+        list: A list of strings containing the datasets saved and read
+    """
+    # Grepping commands
+    # foreachVars = os.popen(
+    #     'cat ' + file + ' | awk \'{$1=$1;print}\' | grep "^foreach .* in" | awk \'{for(i=2;i<NF;i++)print $(i)}\' | sed \'s/in//g\' | tr \'\n\' \',\' | sed \'s/,,/,/g\' ').read()
+    localVars = os.popen(
+        'cat ' + file + ' | grep "^local" | awk \'{print $2,$3}\' | sed \'s/ /,/g\' ').read()
+    save = os.popen(
+        'cat ' + file + ' | grep "^save" | awk \'{print $2}\' | sed \'s/,//g\' | sed \'s/\"//g\' ').read()
+    read_import = os.popen(
+        'cat ' + file + ' | grep "^import" | awk \'{print $3}\' | sed \'s/,//g\' | sed \'s/\"//g\' ').read()
+    read_use = os.popen(
+        'cat ' + file + ' | grep "^use" | awk \'{print $2}\' | sed \'s/,//g\' | sed \'s/\"//g\' ').read()
+    read_merge = os.popen(
+        'cat ' + file + ' | awk \'{$1=$1;print}\' | grep "^merge" | awk \'{for(i=1;i<=NF;i++)if($i=="using")print $(i+1)}\' | sed \'s/\"//g\' ').read()
+    read_append = os.popen(
+        'cat ' + file + ' | awk \'{$1=$1;print}\' | grep "^append" | awk \'{for(i=1;i<=NF;i++)if($i=="using")print $(i+1)}\' | sed \'s/\"//g\' ').read()
+    read = read_import + read_use + read_merge + read_append
+
+    # Converting local var into dictionary.
+    localVarDict = {}
+    for i in [x.split(',') for x in localVars.splitlines()]:
+        if len(i) > 0:
+            localVarDict[('`' + i[0] + '\'')] = i[1]
+
+    # Replacing values matching keys in local vars with the
+    # keys value. Assumes local vars are constant through script.
+    for j in localVarDict:
+        save = save.replace(j, localVarDict[j])
+        read = read.replace(j, localVarDict[j])
+
+    # Removing the temp file tags `xxx'
+    save = save.replace('`', '').replace('\'', '')
+    read = read.replace('`', '').replace('\'', '')
+
+    return save, read
+
+
+def cleanFilePaths(listOfResults, type=None):
+    if type not in ['save', 'read']:
+        raise ValueError(
+            "Please specify whether or not listOfResults is"
+            "'save' or 'read' list.")
+
+    if not isinstance(listOfResults, list):
+        raise ValueError(
+            "Please provide a list to 'listOfResults'"
+        )
+
+    for dataFile in listOfResults:
+        dataFile = dataFile.rsplit('/', 1)[-1]
+        if dataFile not in data:
+            data[dataFile] = {'save': [], 'read': []}
+            data[dataFile][type].append(listOfResults.rsplit('/', 1)[-1])
+        else:
+            data[dataFile][type].append(listOfResults.rsplit('/', 1)[-1])
+
+
+def extractDataDeps(listOfCodeFiles):
     data = {}
     saveData = []
     readData = []
 
-    for file in allCodeFiles:
+    for file in listOfCodeFiles:
         print(file)
         # Cat reads out contents of found script, first grep finds all lines with import / export commands,
         # second grep finds things stuck between double quotes, third grep removes the quotes
         if any(fileEnding in file for fileEnding in ['.R', '.py']):
-            save = os.popen(
-                'cat ' + file + ' | grep -A 1 "saveRDS*\|write[_.]csv*\|to_csv*" | grep -o \'".*"\' | sed \'s/"//g\' ').read()
-            read = os.popen(
-                'cat ' + file + ' | grep -A 1 "readRDS*\|read_csv*" | grep -o \'".*"\' | sed \'s/"//g\' ').read()
-            # readSQL = os.popen(
-            #     'cat ' + file + ' | grep "FROM" | awk \'{for(i=1; i<=NF; i++) if($i~/FROM/) print $(i+1)}\' | sed \'s/"//g\'').read()
+            save, read = extractPyOrRFiles(file)
         elif '.do' in file:
-            # Grepping commands
-            # foreachVars = os.popen(
-            #     'cat ' + file + ' | awk \'{$1=$1;print}\' | grep "^foreach .* in" | awk \'{for(i=2;i<NF;i++)print $(i)}\' | sed \'s/in//g\' | tr \'\n\' \',\' | sed \'s/,,/,/g\' ').read()
-            localVars = os.popen(
-                'cat ' + file + ' | grep "^local" | awk \'{print $2,$3}\' | sed \'s/ /,/g\' ').read()
-            save = os.popen(
-                'cat ' + file + ' | grep "^save" | awk \'{print $2}\' | sed \'s/,//g\' | sed \'s/\"//g\' ').read()
-            read_import = os.popen(
-                'cat ' + file + ' | grep "^import" | awk \'{print $3}\' | sed \'s/,//g\' | sed \'s/\"//g\' ').read()
-            read_use = os.popen(
-                'cat ' + file + ' | grep "^use" | awk \'{print $2}\' | sed \'s/,//g\' | sed \'s/\"//g\' ').read()
-            read_merge = os.popen(
-                'cat ' + file + ' | awk \'{$1=$1;print}\' | grep "^merge" | awk \'{for(i=1;i<=NF;i++)if($i=="using")print $(i+1)}\' | sed \'s/\"//g\' ').read()
-            read_append = os.popen(
-                'cat ' + file + ' | awk \'{$1=$1;print}\' | grep "^append" | awk \'{for(i=1;i<=NF;i++)if($i=="using")print $(i+1)}\' | sed \'s/\"//g\' ').read()
-            read = read_import + read_use + read_merge + read_append
-
-            # Converting local var into dictionary.
-            localVarDict = {}
-            for i in [x.split(',') for x in localVars.splitlines()]:
-                if len(i) > 0:
-                    localVarDict[('`' + i[0] + '\'')] = i[1]
-
-            # Replacing values matching keys in local vars with the
-            # keys value. Assumes local vars are constant through script.
-            for j in localVarDict:
-                save = save.replace(j, localVarDict[j])
-                read = read.replace(j, localVarDict[j])
-
-            # Removing the temp file tags `xxx'
-            save = save.replace('`', '').replace('\'', '')
-            read = read.replace('`', '').replace('\'', '')
-
+            save, read = extractDoFiles(file)
         else:
             sys.exit(
                 "Something went wrong. The 'getListOfFiles' function saved a file that doesn't end in .do, .R, or .py")
@@ -192,10 +242,10 @@ if __name__ == '__main__':
     dirToSearch = getDirectoryToMap()
 
     # Recursively obtain list of R files
-    allCodeFiles = getListOfFiles(dirToSearch)
+    listOfCodeFiles = getListOfFiles(dirToSearch)
 
     # Extract dependencies from R files
-    data, saveData, readData = extractDataDeps(allCodeFiles)
+    data, saveData, readData = extractDataDeps(listOfCodeFiles)
 
     # Create dependency graph
     graph = createDepGraph(data)
