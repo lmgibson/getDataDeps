@@ -212,7 +212,7 @@ def createDepGraph(data):
 
 def saveGraph(graph):
     if not os.path.exists('%sdataDepsOutput' % (dirToSearch)):
-        os.makedirs('%s/dataDepsOutput' % (dirToSearch))
+        os.makedirs('%sdataDepsOutput' % (dirToSearch))
 
     try:
         graph.write_png('%sdataDepsOutput/dataDepsGraph.png' % (dirToSearch))
@@ -243,7 +243,6 @@ def printResults():
 
 
 if __name__ == '__main__':
-    # Note, if you drop this into a function it greys out saveData and readData. Not sure why.
     # Get dir to search, if given
     dirToSearch = getDirectoryToMap()
 
