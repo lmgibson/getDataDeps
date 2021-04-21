@@ -221,9 +221,6 @@ def outputResults():
     [print("\t", dataFile) for dataFile in (set(saveData) - set(readData))]
 
     print("\nFor detailed information see the dataDeps.json file.")
-    with open('./dataDepsOutput/dataDeps.json', 'w') as outfile:
-        json.dump(data, outfile)
-
     print("\nA graph of your data dependencies is available as './dataDepsOutput/dataDepsGraph.png'")
 
 
@@ -242,10 +239,15 @@ if __name__ == '__main__':
     graph = createDepGraph(data)
 
     # Write graph to output folder
-    if not os.path.exists('./dataDepsOutput'):
-        os.makedirs('./dataDepsOutput')
+    if not os.path.exists('%sdataDepsOutput' % (dirToSearch)):
+        os.makedirs('%s/dataDepsOutput' % (dirToSearch))
 
-    graph.write_png('./dataDepsOutput/dataDepsGraph.png')
+    graph.write_png('%sdataDepsOutput/dataDepsGraph.png' % (dirToSearch))
+
+    # Write Data to output folder
+    fileName = '%sdataDepsOutput/dataDeps.json' % (dirToSearch)
+    with open(fileName, 'w') as outfile:
+        json.dump(data, outfile)
 
     # Print results and write data to json object
     outputResults()
