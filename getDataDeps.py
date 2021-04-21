@@ -3,8 +3,6 @@ import pydot
 import os
 import sys
 
-# On develop
-
 
 def getDirectoryToMap():
     """
