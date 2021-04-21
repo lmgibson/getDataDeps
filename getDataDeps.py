@@ -210,17 +210,35 @@ def createDepGraph(data):
     return dot_graph
 
 
-def outputResults():
-    print("Saved datasets:")
+def saveGraph(graph):
+    if not os.path.exists('%sdataDepsOutput' % (dirToSearch)):
+        os.makedirs('%s/dataDepsOutput' % (dirToSearch))
+
+    try:
+        graph.write_png('%sdataDepsOutput/dataDepsGraph.png' % (dirToSearch))
+    except:
+        print("Saving out the graph failed. You most likely need to install graphviz.")
+
+
+def writeData(data):
+    fileName = '%sdataDepsOutput/dataDeps.json' % (dirToSearch)
+
+    with open(fileName, 'w') as outfile:
+        json.dump(data, outfile)
+
+
+def printResults():
+    print("\nSaved datasets:\n")
     [print("\t", dataFile) for dataFile in set(saveData)]
 
-    print("Read datasets:")
+    print("\nRead datasets:\n")
     [print("\t", dataFile) for dataFile in set(readData)]
 
     print("Datasets that are saved and not read:")
     [print("\t", dataFile) for dataFile in (set(saveData) - set(readData))]
 
     print("\nFor detailed information see the dataDeps.json file.")
+
     print("\nA graph of your data dependencies is available as './dataDepsOutput/dataDepsGraph.png'")
 
 
@@ -239,15 +257,10 @@ if __name__ == '__main__':
     graph = createDepGraph(data)
 
     # Write graph to output folder
-    if not os.path.exists('%sdataDepsOutput' % (dirToSearch)):
-        os.makedirs('%s/dataDepsOutput' % (dirToSearch))
-
-    graph.write_png('%sdataDepsOutput/dataDepsGraph.png' % (dirToSearch))
+    saveGraph(graph)
 
     # Write Data to output folder
-    fileName = '%sdataDepsOutput/dataDeps.json' % (dirToSearch)
-    with open(fileName, 'w') as outfile:
-        json.dump(data, outfile)
+    writeData(data)
 
     # Print results and write data to json object
-    outputResults()
+    printResults()
