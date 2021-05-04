@@ -301,10 +301,9 @@ def printResults(dirToSearch, saveData, readData, console):
     [console.print("\t", dataFile)
      for dataFile in (set(saveData) - set(readData))]
 
-    console.print("\nFor detailed information see the dataDeps.json file.")
-
     console.print(
-        "A graph of your data dependencies is available as '%sdataDepsOutput/dataDepsGraph.png'\n" % (dirToSearch))
+        "\nA graph of your data dependencies is available as '%sdataDepsOutput/dataDepsGraph.png'\n" % (dirToSearch))
+    console.print("For detailed information see the dataDeps.json file.")
 
 
 def main():
