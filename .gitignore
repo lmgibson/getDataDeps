@@ -4,3 +4,5 @@ env
 pyproject.toml
 setup.py
 getDataDeps.egg-info
+build
+dist
