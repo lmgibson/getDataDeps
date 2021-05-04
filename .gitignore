@@ -3,3 +3,4 @@ __pycache__
 env
 pyproject.toml
 setup.py
+getDataDeps.egg-info
