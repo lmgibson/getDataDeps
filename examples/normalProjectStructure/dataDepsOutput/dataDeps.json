@@ -1,0 +1,1 @@
+{"modelResults.csv": {"save": [], "read": ["04A_stataCode.do"]}, "modeling.csv": {"save": ["02B_featureEngineering.R"], "read": []}, "results.dta": {"save": ["04A_stataCode.do"], "read": []}, "test.rds": {"save": [], "read": ["02A_descriptives.R"]}, "notUsedData.rds": {"save": ["01A_analyticFile.R"], "read": []}, "analytic.rds": {"save": [], "read": ["02A_descriptives.R"]}}

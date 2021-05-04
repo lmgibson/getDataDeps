@@ -13,7 +13,11 @@ def getDirectoryToMap():
         str : string indicating the path to the directory to search
     """
     if len(sys.argv) > 1:
-        dirToSearch = sys.argv[1]
+        projectFolder = sys.argv[1]
+        if projectFolder[-1] == "/":
+            dirToSearch = projectFolder
+        else:
+            dirToSearch = projectFolder + "/"
     else:
         dirToSearch = "./"
 
@@ -281,7 +285,7 @@ def writeData(data, dirToSearch):
         json.dump(data, outfile)
 
 
-def printResults(saveData, readData):
+def printResults(dirToSearch, saveData, readData):
     """
     Prints results to console.
     """
@@ -296,7 +300,7 @@ def printResults(saveData, readData):
 
     print("\nFor detailed information see the dataDeps.json file.")
 
-    print("\nA graph of your data dependencies is available as './dataDepsOutput/dataDepsGraph.png'")
+    print("\nA graph of your data dependencies is available as '%sdataDepsOutput/dataDepsGraph.png'" % (dirToSearch))
 
 
 def main():
@@ -319,7 +323,7 @@ def main():
     writeData(data, dirToSearch)
 
     # Print results and write data to json object
-    printResults(saveData, readData)
+    printResults(dirToSearch, saveData, readData)
 
 
 if __name__ == '__main__':
