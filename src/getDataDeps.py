@@ -66,6 +66,52 @@ def getListOfFiles(dirName):
     return listOfCodeFiles
 
 
+def extractDataDeps(listOfCodeFiles, console):
+    """
+    The meat. Takes in a list of files, examines relevant files for datafiles
+    saved or read, and exports the results in a dictionary labeled 'data'.
+
+    Args:
+        listOfCodeFiles (list): List of strings where each string is a file in
+        the supplied directory.
+
+    Returns:
+        dict: Returns three dictionaries that contain a top-level dictionary
+        where the key is the data file, a sub-level dictionary where the key
+        is 'saved' or 'read' and within each of those keys a list of strings
+        of the files that use the top-level key.
+    """
+    data = {}
+    saveData = []
+    readData = []
+
+    console.print('Searching . . .')
+    for file in listOfCodeFiles:
+        console.print(f"\t{file}")
+        # Cat reads out contents of found script, first grep finds all lines with import / export commands,
+        # second grep finds things stuck between double quotes, third grep removes the quotes
+        if any(fileEnding in file for fileEnding in ['.R', '.py']):
+            save, read = extractPyOrRFiles(file)
+        elif '.do' in file:
+            save, read = extractDoFiles(file)
+        else:
+            sys.exit(
+                "Something went wrong. The 'getListOfFiles' function saved a file that doesn't end in .do, .R, or .py")
+
+        save = save.splitlines()
+        read = read.splitlines()
+
+        data.update(cleanFilePaths(file, save, type='save'))
+        data.update(cleanFilePaths(file, read, type='read'))
+
+        if len(save) > 0:
+            saveData.extend(save)
+        if len(read) > 0:
+            readData.extend(read)
+
+    return data, saveData, readData
+
+
 def extractPyOrRFiles(file):
     """
     Uses Unix commands to search for and extract datasets from R
@@ -172,51 +218,6 @@ def cleanFilePaths(file, listOfResults, type=None):
     return results
 
 
-def extractDataDeps(listOfCodeFiles):
-    """
-    The meat. Takes in a list of files, examines relevant files for datafiles
-    saved or read, and exports the results in a dictionary labeled 'data'.
-
-    Args:
-        listOfCodeFiles (list): List of strings where each string is a file in
-        the supplied directory.
-
-    Returns:
-        dict: Returns three dictionaries that contain a top-level dictionary
-        where the key is the data file, a sub-level dictionary where the key
-        is 'saved' or 'read' and within each of those keys a list of strings
-        of the files that use the top-level key.
-    """
-    data = {}
-    saveData = []
-    readData = []
-
-    for file in listOfCodeFiles:
-        print(file)
-        # Cat reads out contents of found script, first grep finds all lines with import / export commands,
-        # second grep finds things stuck between double quotes, third grep removes the quotes
-        if any(fileEnding in file for fileEnding in ['.R', '.py']):
-            save, read = extractPyOrRFiles(file)
-        elif '.do' in file:
-            save, read = extractDoFiles(file)
-        else:
-            sys.exit(
-                "Something went wrong. The 'getListOfFiles' function saved a file that doesn't end in .do, .R, or .py")
-
-        save = save.splitlines()
-        read = read.splitlines()
-
-        data.update(cleanFilePaths(file, save, type='save'))
-        data.update(cleanFilePaths(file, read, type='read'))
-
-        if len(save) > 0:
-            saveData.extend(save)
-        if len(read) > 0:
-            readData.extend(read)
-
-    return data, saveData, readData
-
-
 def createDepGraph(data):
     """
     Constructs a graph connecting data files to scripts using the multi-level
@@ -316,7 +317,7 @@ def main():
     listOfCodeFiles = getListOfFiles(dirToSearch)
 
     # Extract dependencies from files
-    data, saveData, readData = extractDataDeps(listOfCodeFiles)
+    data, saveData, readData = extractDataDeps(listOfCodeFiles, console)
 
     # Create dependency graph
     graph = createDepGraph(data)
