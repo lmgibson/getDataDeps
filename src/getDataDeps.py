@@ -251,7 +251,7 @@ def createDepGraph(data):
     return dot_graph
 
 
-def saveGraph(graph):
+def saveGraph(graph, dirToSearch):
     """
     Constructs directory for graph if it doesn't exist. Saves graph.
 
@@ -267,7 +267,7 @@ def saveGraph(graph):
         print("Saving out the graph failed. You most likely need to install graphviz.")
 
 
-def writeData(data):
+def writeData(data, dirToSearch):
     """
     Saves data dictionary out as a json object.
 
@@ -281,7 +281,7 @@ def writeData(data):
         json.dump(data, outfile)
 
 
-def printResults():
+def printResults(saveData, readData):
     """
     Prints results to console.
     """
@@ -313,13 +313,13 @@ def main():
     graph = createDepGraph(data)
 
     # Write graph to output folder
-    saveGraph(graph)
+    saveGraph(graph, dirToSearch)
 
     # Write Data to output folder
-    writeData(data)
+    writeData(data, dirToSearch)
 
     # Print results and write data to json object
-    printResults()
+    printResults(saveData, readData)
 
 
 if __name__ == '__main__':
