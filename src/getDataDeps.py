@@ -2,6 +2,7 @@ import json
 import pydot
 import os
 import sys
+from rich.console import Console
 
 
 def getDirectoryToMap():
@@ -285,25 +286,29 @@ def writeData(data, dirToSearch):
         json.dump(data, outfile)
 
 
-def printResults(dirToSearch, saveData, readData):
+def printResults(dirToSearch, saveData, readData, console):
     """
     Prints results to console.
     """
-    print("\nSaved datasets:\n")
-    [print("\t", dataFile) for dataFile in set(saveData)]
+    console.print("\n[bold]Saved datasets[/bold]:\n")
+    [console.print("\t", dataFile) for dataFile in set(saveData)]
 
-    print("\nRead datasets:\n")
-    [print("\t", dataFile) for dataFile in set(readData)]
+    console.print("\n[bold]Read datasets[/bold]:\n")
+    [console.print("\t", dataFile) for dataFile in set(readData)]
 
-    print("Datasets that are saved and not read:")
-    [print("\t", dataFile) for dataFile in (set(saveData) - set(readData))]
+    console.print("[bold]Datasets that are saved and not read[/bold]:")
+    [console.print("\t", dataFile)
+     for dataFile in (set(saveData) - set(readData))]
 
-    print("\nFor detailed information see the dataDeps.json file.")
+    console.print("\nFor detailed information see the dataDeps.json file.")
 
-    print("\nA graph of your data dependencies is available as '%sdataDepsOutput/dataDepsGraph.png'" % (dirToSearch))
+    console.print(
+        "\nA graph of your data dependencies is available as '%sdataDepsOutput/dataDepsGraph.png'" % (dirToSearch))
 
 
 def main():
+    console = Console()
+
     # Get dir to search, if given
     dirToSearch = getDirectoryToMap()
 
@@ -323,7 +328,7 @@ def main():
     writeData(data, dirToSearch)
 
     # Print results and write data to json object
-    printResults(dirToSearch, saveData, readData)
+    printResults(dirToSearch, saveData, readData, console)
 
 
 if __name__ == '__main__':
