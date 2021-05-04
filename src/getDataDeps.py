@@ -85,9 +85,9 @@ def extractDataDeps(listOfCodeFiles, console):
     saveData = []
     readData = []
 
-    console.print('Searching . . .')
+    console.print('[bold]Searching[/bold] . . .')
     for file in listOfCodeFiles:
-        console.print(f"\t{file}")
+        console.print(f"\t[green]{file}[/green]")
         # Cat reads out contents of found script, first grep finds all lines with import / export commands,
         # second grep finds things stuck between double quotes, third grep removes the quotes
         if any(fileEnding in file for fileEnding in ['.R', '.py']):
@@ -291,20 +291,20 @@ def printResults(dirToSearch, saveData, readData, console):
     """
     Prints results to console.
     """
-    console.print("\n[bold]Saved datasets[/bold]:\n")
+    console.print("\n[bold]Saved datasets[/bold]:")
     [console.print("\t", dataFile) for dataFile in set(saveData)]
 
-    console.print("\n[bold]Read datasets[/bold]:\n")
+    console.print("\n[bold]Read datasets[/bold]:")
     [console.print("\t", dataFile) for dataFile in set(readData)]
 
-    console.print("[bold]Datasets that are saved and not read[/bold]:")
+    console.print("\n[bold]Datasets that are saved and not read[/bold]:")
     [console.print("\t", dataFile)
      for dataFile in (set(saveData) - set(readData))]
 
     console.print("\nFor detailed information see the dataDeps.json file.")
 
     console.print(
-        "\nA graph of your data dependencies is available as '%sdataDepsOutput/dataDepsGraph.png'" % (dirToSearch))
+        "A graph of your data dependencies is available as '%sdataDepsOutput/dataDepsGraph.png'\n" % (dirToSearch))
 
 
 def main():
