@@ -299,7 +299,7 @@ def printResults():
     print("\nA graph of your data dependencies is available as './dataDepsOutput/dataDepsGraph.png'")
 
 
-if __name__ == '__main__':
+def main():
     # Get dir to search, if given
     dirToSearch = getDirectoryToMap()
 
@@ -320,3 +320,7 @@ if __name__ == '__main__':
 
     # Print results and write data to json object
     printResults()
+
+
+if __name__ == '__main__':
+    main()
