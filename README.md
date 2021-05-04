@@ -1,20 +1,13 @@
-[![Build Status](https://www.travis-ci.com/lmgibson/getDataDeps.svg?branch=main)](https://www.travis-ci.com/lmgibson/getDataDeps)
-
 # Overview
 
 getDataDeps is a script that maps data dependencies across R and python files in your project. The tool currently tracks data dependencies for several import/export commands in R, python, and Stata.
 
 # Getting Started
 
-1. Install pydot. You have two options.
-   - `conda install pydot`
-   - `pip install pydot`
-2. Download the script, getDataDeps.py.
-3. Navigate to the root of a project directory, such as `cd ~/Desktop/project/statisticsAndStuff`.
-4. On the command line run: `python path/to/script/getDataDeps.py`
-   - This will map the entire directory. If you wish to map a subdirectory specificy the directory as an option: `python path/to/script/getDataDeps.py ./code`
+1. Install with: `pip install getDataDeps`
+2. On the command line run: `getDataDeps .` or `getDataDeps ./path/to/project`
 
-If successful, the script will return output to the terminal as well as two files located in dataDepsOutput within the root of your project directory. One of the files will be a png file that contains the graph of how your data flows through the project, such as the one below.
+If successful, the script will return output to the terminal as well as two files located in dataDepsOutput within the project directory. One of the files will be a png file that contains the graph of how your data flows through the project, such as the one below.
 
 ![Example Graph](./examples/dataDepsGraph.png)
 
@@ -32,5 +25,3 @@ These tips are mostly due to the limitations of how getDataDeps works. Feedback 
 # How it works
 
 The script will iterate through your entire project folder, extract files that end in “.R”, “.py", or ".do", and collect information on data imports and data exports. The JSON object will be saved in the ‘dataDepsOutput’ folder as ‘dataDeps.json’ and the graph as ‘dataDepsGraph.png.
-
-The script will search the entire directory in which it is called. However, you can specify a directory as an option. Here's an example that will run the script on a directory titled 'code': `python path/to/script/getDataDeps.py ./code`
