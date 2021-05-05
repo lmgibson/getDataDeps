@@ -85,7 +85,7 @@ def extractDataDeps(listOfCodeFiles, console):
     saveData = []
     readData = []
 
-    console.print('[bold]Searching[/bold] . . .')
+    console.print(':mag: [bold]Searching[/bold] . . .')
     for file in listOfCodeFiles:
         console.print(f"\t[green]{file}[/green]")
         # Cat reads out contents of found script, first grep finds all lines with import / export commands,
@@ -291,18 +291,19 @@ def printResults(dirToSearch, saveData, readData, console):
     """
     Prints results to console.
     """
-    console.print("\n[bold]Saved datasets[/bold]:")
+    console.print("\n :file_folder: [bold]Saved datasets[/bold]:")
     [console.print("\t", dataFile) for dataFile in set(saveData)]
 
-    console.print("\n[bold]Read datasets[/bold]:")
+    console.print("\n :book: [bold]Read datasets[/bold]:")
     [console.print("\t", dataFile) for dataFile in set(readData)]
 
-    console.print("\n[bold]Datasets that are saved and not read[/bold]:")
+    console.print(
+        "\n :rotating_light: [bold]Datasets that are saved and not read[/bold]:")
     [console.print("\t", dataFile)
      for dataFile in (set(saveData) - set(readData))]
 
     console.print(
-        "\nA graph of your data dependencies is available as '%sdataDepsOutput/dataDepsGraph.png'\n" % (dirToSearch))
+        "\nA graph of your data dependencies is available @ '%sdataDepsOutput/dataDepsGraph.png'\n" % (dirToSearch))
     console.print("For detailed information see the dataDeps.json file.")
 
 
