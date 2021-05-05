@@ -2,6 +2,7 @@ import json
 import pydot
 import os
 import sys
+from rich.console import Console
 
 
 def getDirectoryToMap():
@@ -63,6 +64,52 @@ def getListOfFiles(dirName):
     listOfCodeFiles = [x.replace('\\', '/') for x in listOfCodeFiles]
 
     return listOfCodeFiles
+
+
+def extractDataDeps(listOfCodeFiles, console):
+    """
+    The meat. Takes in a list of files, examines relevant files for datafiles
+    saved or read, and exports the results in a dictionary labeled 'data'.
+
+    Args:
+        listOfCodeFiles (list): List of strings where each string is a file in
+        the supplied directory.
+
+    Returns:
+        dict: Returns three dictionaries that contain a top-level dictionary
+        where the key is the data file, a sub-level dictionary where the key
+        is 'saved' or 'read' and within each of those keys a list of strings
+        of the files that use the top-level key.
+    """
+    data = {}
+    saveData = []
+    readData = []
+
+    console.print(' :mag: [bold]Searching[/bold] . . .')
+    for file in listOfCodeFiles:
+        console.print(f"\t[green]{file}[/green]")
+        # Cat reads out contents of found script, first grep finds all lines with import / export commands,
+        # second grep finds things stuck between double quotes, third grep removes the quotes
+        if any(fileEnding in file for fileEnding in ['.R', '.py']):
+            save, read = extractPyOrRFiles(file)
+        elif '.do' in file:
+            save, read = extractDoFiles(file)
+        else:
+            sys.exit(
+                "Something went wrong. The 'getListOfFiles' function saved a file that doesn't end in .do, .R, or .py")
+
+        save = save.splitlines()
+        read = read.splitlines()
+
+        data.update(cleanFilePaths(file, save, type='save'))
+        data.update(cleanFilePaths(file, read, type='read'))
+
+        if len(save) > 0:
+            saveData.extend(save)
+        if len(read) > 0:
+            readData.extend(read)
+
+    return data, saveData, readData
 
 
 def extractPyOrRFiles(file):
@@ -171,51 +218,6 @@ def cleanFilePaths(file, listOfResults, type=None):
     return results
 
 
-def extractDataDeps(listOfCodeFiles):
-    """
-    The meat. Takes in a list of files, examines relevant files for datafiles
-    saved or read, and exports the results in a dictionary labeled 'data'.
-
-    Args:
-        listOfCodeFiles (list): List of strings where each string is a file in
-        the supplied directory.
-
-    Returns:
-        dict: Returns three dictionaries that contain a top-level dictionary
-        where the key is the data file, a sub-level dictionary where the key
-        is 'saved' or 'read' and within each of those keys a list of strings
-        of the files that use the top-level key.
-    """
-    data = {}
-    saveData = []
-    readData = []
-
-    for file in listOfCodeFiles:
-        print(file)
-        # Cat reads out contents of found script, first grep finds all lines with import / export commands,
-        # second grep finds things stuck between double quotes, third grep removes the quotes
-        if any(fileEnding in file for fileEnding in ['.R', '.py']):
-            save, read = extractPyOrRFiles(file)
-        elif '.do' in file:
-            save, read = extractDoFiles(file)
-        else:
-            sys.exit(
-                "Something went wrong. The 'getListOfFiles' function saved a file that doesn't end in .do, .R, or .py")
-
-        save = save.splitlines()
-        read = read.splitlines()
-
-        data.update(cleanFilePaths(file, save, type='save'))
-        data.update(cleanFilePaths(file, read, type='read'))
-
-        if len(save) > 0:
-            saveData.extend(save)
-        if len(read) > 0:
-            readData.extend(read)
-
-    return data, saveData, readData
-
-
 def createDepGraph(data):
     """
     Constructs a graph connecting data files to scripts using the multi-level
@@ -285,25 +287,28 @@ def writeData(data, dirToSearch):
         json.dump(data, outfile)
 
 
-def printResults(dirToSearch, saveData, readData):
+def printResults(dirToSearch, saveData, readData, console):
     """
     Prints results to console.
     """
-    print("\nSaved datasets:\n")
-    [print("\t", dataFile) for dataFile in set(saveData)]
+    console.print("\n :file_folder: [bold]Saved datasets[/bold]")
+    [console.print("\t", dataFile) for dataFile in set(saveData)]
 
-    print("\nRead datasets:\n")
-    [print("\t", dataFile) for dataFile in set(readData)]
+    console.print("\n :book: [bold]Read datasets[/bold]")
+    [console.print("\t", dataFile) for dataFile in set(readData)]
 
-    print("Datasets that are saved and not read:")
-    [print("\t", dataFile) for dataFile in (set(saveData) - set(readData))]
+    console.print(
+        "\n :rotating_light: [bold]Datasets that are saved and not read[/bold]")
+    [console.print("\t [red]%s[/red]" % dataFile)
+     for dataFile in (set(saveData) - set(readData))]
 
-    print("\nFor detailed information see the dataDeps.json file.")
-
-    print("\nA graph of your data dependencies is available as '%sdataDepsOutput/dataDepsGraph.png'" % (dirToSearch))
+    console.print(
+        "\nA graph of your data dependencies and detailed information are available @ '%sdataDepsOutput/'" % (dirToSearch))
 
 
 def main():
+    console = Console()
+
     # Get dir to search, if given
     dirToSearch = getDirectoryToMap()
 
@@ -311,7 +316,7 @@ def main():
     listOfCodeFiles = getListOfFiles(dirToSearch)
 
     # Extract dependencies from files
-    data, saveData, readData = extractDataDeps(listOfCodeFiles)
+    data, saveData, readData = extractDataDeps(listOfCodeFiles, console)
 
     # Create dependency graph
     graph = createDepGraph(data)
@@ -323,7 +328,7 @@ def main():
     writeData(data, dirToSearch)
 
     # Print results and write data to json object
-    printResults(dirToSearch, saveData, readData)
+    printResults(dirToSearch, saveData, readData, console)
 
 
 if __name__ == '__main__':
