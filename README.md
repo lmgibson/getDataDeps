@@ -9,7 +9,7 @@ getDataDeps is a script that maps data dependencies across R and python files in
 
 If successful, the script will return output to the terminal as well as two files located in dataDepsOutput within the project directory.
 
-![](./examples/example.gif)
+![](./examples/example.png)
 
 One of the files will be a png file that contains the graph of how your data flows through the project, such as the one below.
 
