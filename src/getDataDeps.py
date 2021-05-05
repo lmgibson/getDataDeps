@@ -299,7 +299,7 @@ def printResults(dirToSearch, saveData, readData, console):
 
     console.print(
         "\n :rotating_light: [bold]Datasets that are saved and not read[/bold]")
-    [console.print("\t", dataFile)
+    [console.print("\t [red]%s[/red]" % dataFile)
      for dataFile in (set(saveData) - set(readData))]
 
     console.print(
